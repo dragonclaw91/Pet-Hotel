@@ -15,39 +15,125 @@ namespace pet_hotel.Controllers
     public class PetsController : ControllerBase
     {
         private readonly ApplicationContext _context;
-        public PetsController(ApplicationContext context) {
+        public PetsController(ApplicationContext context)
+        {
             _context = context;
         }
 
         // This is just a stub for GET / to prevent any weird frontend errors that 
         // occur when the route is missing in this controller
         [HttpGet]
-        public IEnumerable<Pet> GetPets() {
-            return new List<Pet>();
+        public List<Pet> GetpetInventories()
+        {
+            return _context.Pets
+              .Include(pet => pet.petOwner)
+              .OrderBy(pet => pet.name).ToList();
         }
 
-        // [HttpGet]
-        // [Route("test")]
-        // public IEnumerable<Pet> GetPets() {
-        //     PetOwner blaine = new PetOwner{
-        //         name = "Blaine"
-        //     };
+        // GET by id
+        [HttpGet("{id}")] // GET /api/pet/10
+        public Pet getpetById(int id)
+        {
+            return _context.Pets
+                .Include(pet => pet.petOwnerid)
+                .SingleOrDefault(pet => pet.id == id);
+        }
+        // DELETE By id
+        [HttpDelete("{id}")] // DELETE /api/pet/10
+        public IActionResult deletepetById(int id)
+        {
+            Pet pet = _context.Pets.Find(id);
+            // Return a 404 not found if pet id is invalid
+            if (pet == null)
+            {
+                return NotFound(); // 404 NOT FOUND
+            }
 
-        //     Pet newPet1 = new Pet {
-        //         name = "Big Dog",
-        //         petOwner = blaine,
-        //         color = PetColorType.Black,
-        //         breed = PetBreedType.Poodle,
-        //     };
+            _context.Pets.Remove(pet);
+            _context.SaveChanges();
+            return NoContent(); // 204 NO CONTENT
+        }
+        // POST
+        [HttpPost]
+        public IActionResult addpet([FromBody] Pet pet)
+        {
+            _context.Pets.Add(pet);
+            _context.SaveChanges();
+            Pet newPet = _context.Pets.Include(pet => pet.petOwner).SingleOrDefault(p => p.id == pet.id);
+            return CreatedAtAction(nameof(getpetById), new { id = newPet.id }, newPet);
+        }
 
-        //     Pet newPet2 = new Pet {
-        //         name = "Little Dog",
-        //         petOwner = blaine,
-        //         color = PetColorType.Golden,
-        //         breed = PetBreedType.Labrador,
-        //     };
 
-        //     return new List<Pet>{ newPet1, newPet2};
+
+        // PUT (for selling)
+        [HttpPut("{id}/checkin")] // TODO: /{id}/sell
+        public IActionResult CheckIn(int id)
+        {
+            // find the pet
+            Pet pet = _context.Pets
+            .SingleOrDefault(p => p.id == id);
+            // return 404 if not found
+            if (pet == null)
+            {
+                return NotFound();
+            }
+            pet.checkedInAt = DateTime.UtcNow;
+            _context.Update(pet);
+            _context.SaveChanges();
+            return Ok(pet);
+        }
+
+        [HttpPut("{id}/checkout")] // TODO: /{id}/sell
+        public IActionResult CheckOut(int id)
+        {
+            // find the pet
+            Pet pet = _context.Pets
+            .SingleOrDefault(p => p.id == id);
+            // return 404 if not found
+            if (pet == null)
+            {
+                return NotFound();
+            }
+            pet.checkedInAt = null;
+            _context.Update(pet);
+            _context.SaveChanges();
+            return Ok(pet);
+        }
+
+        // [HttpPut("{id}")] // DELETE /api/PetOwner/10
+        // public IActionResult updatePetOwnerById(int id, [FromBody] PetOwner petOwner)
+        // {
+        //     PetOwner foundOwner = _context.PetOwners.Find(id);
+        //     // Return a 404 not found if PetOwner id is invalid
+        //     if (foundOwner == null)
+        //     {
+        //         return NotFound(); // 404 NOT FOUND
+        //     }
+        //     foundOwner.name = petOwner.name;
+        //     foundOwner.emailAddress = petOwner.emailAddress;
+
+        //     _context.PetOwners.Update(foundOwner);
+        //     _context.SaveChanges();
+        //     return Ok(petOwner); // 204 NO CONTENT
         // }
+
+                // PUT (for )
+        
+        [HttpPut("{id}")] // TODO: /{id}/
+        public IActionResult Put(int id, [FromBody] Pet pet)
+        {
+            if (id != pet.id) return BadRequest();
+
+            if (!_context.Pets.Any(b => b.id == id)) return NotFound();
+
+            _context.Update(pet);
+
+            Console.WriteLine(pet);
+
+            _context.SaveChanges();
+
+            return Ok(_context.Pets.Include(p => p.petOwner).SingleOrDefault(p => p.id == id));
+        }
+
     }
 }

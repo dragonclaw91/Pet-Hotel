@@ -53,7 +53,7 @@ namespace pet_hotel.Controllers
             return NoContent(); // 204 NO CONTENT
         }
 
-        [HttpPut("{id}")] // DELETE /api/PetOwner/10
+        [HttpPut("{id}")] // find pet owner of a pet and update by id
         public IActionResult updatePetOwnerById(int id, [FromBody] PetOwner petOwner) {
             PetOwner foundOwner = _context.PetOwners.Find(id);
             // Return a 404 not found if PetOwner id is invalid

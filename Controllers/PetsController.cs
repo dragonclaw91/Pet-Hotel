@@ -30,7 +30,7 @@ namespace pet_hotel.Controllers
               .OrderBy(pet => pet.name).ToList();
         }
 
-        // GET by id
+        // GET a pet by id
         [HttpGet("{id}")] // GET /api/pet/10
         public Pet getpetById(int id)
         {
@@ -38,7 +38,7 @@ namespace pet_hotel.Controllers
                 .Include(pet => pet.petOwnerid)
                 .SingleOrDefault(pet => pet.id == id);
         }
-        // DELETE By id
+        // DELETE a pet By id
         [HttpDelete("{id}")] // DELETE /api/pet/10
         public IActionResult deletepetById(int id)
         {
@@ -53,7 +53,7 @@ namespace pet_hotel.Controllers
             _context.SaveChanges();
             return NoContent(); // 204 NO CONTENT
         }
-        // POST
+        // add a pet
         [HttpPost]
         public IActionResult addpet([FromBody] Pet pet)
         {
@@ -65,7 +65,7 @@ namespace pet_hotel.Controllers
 
 
 
-        // PUT (for selling)
+        // PUT (for checkin)
         [HttpPut("{id}/checkin")] // TODO: /{id}/sell
         public IActionResult CheckIn(int id)
         {
@@ -83,7 +83,7 @@ namespace pet_hotel.Controllers
             return Ok(pet);
         }
 
-        [HttpPut("{id}/checkout")] // TODO: /{id}/sell
+        [HttpPut("{id}/checkout")] // TODO: /{id}/checkout
         public IActionResult CheckOut(int id)
         {
             // find the pet
@@ -100,22 +100,7 @@ namespace pet_hotel.Controllers
             return Ok(pet);
         }
 
-        // [HttpPut("{id}")] // DELETE /api/PetOwner/10
-        // public IActionResult updatePetOwnerById(int id, [FromBody] PetOwner petOwner)
-        // {
-        //     PetOwner foundOwner = _context.PetOwners.Find(id);
-        //     // Return a 404 not found if PetOwner id is invalid
-        //     if (foundOwner == null)
-        //     {
-        //         return NotFound(); // 404 NOT FOUND
-        //     }
-        //     foundOwner.name = petOwner.name;
-        //     foundOwner.emailAddress = petOwner.emailAddress;
-
-        //     _context.PetOwners.Update(foundOwner);
-        //     _context.SaveChanges();
-        //     return Ok(petOwner); // 204 NO CONTENT
-        // }
+   
 
                 // PUT (for )
         
